@@ -21,6 +21,11 @@ class Rack::Turnout
       page = page_class.new(settings.reason, env: env)
 
       page.rack_response(settings.response_code, settings.retry_after)
+    elsif settings && request.is_health_check?(settings)
+      page_class = Turnout::HealthCheckPage.best_for(env)
+      page = page_class.new(settings.reason, env: env)
+
+      page.rack_response(settings.health_check_response_code, settings.retry_after)
     else
       @app.call(env)
     end

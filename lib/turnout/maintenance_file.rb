@@ -5,7 +5,7 @@ module Turnout
   class MaintenanceFile
     attr_reader :path
 
-    SETTINGS = [:reason, :allowed_paths, :allowed_ips, :response_code, :retry_after]
+    SETTINGS = [:reason, :allowed_paths, :allowed_ips, :response_code, :retry_after, :health_check_paths, :health_check_response_code]
     attr_reader(*SETTINGS)
 
     def initialize(path)
@@ -14,6 +14,8 @@ module Turnout
       @allowed_paths = Turnout.config.default_allowed_paths
       @allowed_ips = Turnout.config.default_allowed_ips
       @response_code = Turnout.config.default_response_code
+      @health_check_paths = Turnout.config.default_health_check_paths
+      @health_check_response_code = Turnout.config.default_health_check_response_code
       @retry_after = Turnout.config.default_retry_after
 
       import_yaml if exists?
@@ -94,6 +96,18 @@ module Turnout
     end
 
     # Splits strings on commas for easier importing of environment variables
+    def health_check_paths=(paths)
+      if paths.is_a? String
+        # Grab everything between commas that aren't escaped with a backslash
+        paths = paths.to_s.split(/(?<!\\),\ ?/).map do |path|
+          path.strip.gsub('\,', ',') # remove the escape characters
+        end
+      end
+
+      @health_check_paths = paths
+    end
+
+    # Splits strings on commas for easier importing of environment variables
     def allowed_ips=(ips)
       ips = ips.to_s.split(',') if ips.is_a? String
 
@@ -102,6 +116,10 @@ module Turnout
 
     def response_code=(code)
       @response_code = code.to_i
+    end
+
+    def health_check_response_code=(code)
+      @health_check_response_code = code.to_i
     end
 
     def dir_path

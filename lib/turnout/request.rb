@@ -10,6 +10,12 @@ module Turnout
       path_allowed?(settings.allowed_paths) || ip_allowed?(settings.allowed_ips)
     end
 
+    def is_health_check?(settings)
+      settings.health_check_paths.any? do |health_check_path|
+        rack_request.path == health_check_path
+      end
+    end
+
     private
 
     attr_reader :rack_request

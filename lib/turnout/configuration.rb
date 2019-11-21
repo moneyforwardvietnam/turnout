@@ -11,6 +11,10 @@ module Turnout
       :skip_middleware,
       :default_allowed_paths,
       :default_response_code,
+      :health_check_pages_path,
+      :default_health_check_page,
+      :default_health_check_paths,
+      :default_health_check_response_code,
       :default_retry_after,
       :i18n
     ].freeze
@@ -29,6 +33,12 @@ module Turnout
       @default_allowed_paths = []
       @default_allowed_ips = []
       @default_response_code = 503
+
+      @health_check_pages_path = app_root.join('public').to_s
+      @default_health_check_page = Turnout::HealthCheckPage::HTML
+      @default_health_check_paths = []
+      @default_health_check_response_code = 200
+
       @default_retry_after = 7200 # 2 hours by default
       @i18n = Turnout::OrderedOptions.new
       @i18n.railties_load_path = []
